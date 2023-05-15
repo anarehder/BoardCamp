@@ -5,7 +5,7 @@ export function validateSchema(schema) {
 
         if (validation.error) {
             const errors = validation.error.details.map(detail => detail.message)
-            return res.status(422).send("Revise os campos, eles são obrigatórios")
+            return res.sendStatus(400)
         }
 
         next()
