@@ -1,9 +1,15 @@
 import { db } from "../database/database.js";
+import dayjs from "dayjs";
 
 export async function getCustomers(req, res) {
   try {
     const customers = await db.query(`SELECT * FROM customers`);
-    res.send(customers.rows);
+    const customersRecieved = customers.rows;
+    console.log(customersRecieved);
+    customersRecieved.forEach((element) => {
+      element.birthday = dayjs(element.birthday).format('YYYY-MM-DD');
+  });
+    res.send(customersRecieved);
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
@@ -16,7 +22,10 @@ export async function getCustomersById(req, res) {
     if (!customer.rows[0]){
       res.sendStatus(404);
     } else {
-      res.send(customer.rows[0])
+      const customerRecieved = customer.rows[0];
+      console.log(customerRecieved);
+      customerRecieved.birthday = dayjs(customerRecieved.birthday).format('YYYY-MM-DD');
+      res.send(customerRecieved)
     }
   } catch (err) {
     console.error(err);
@@ -48,7 +57,9 @@ export async function editCustomer(req, res) {
 
   try {
     const customerExists = await db.query(`SELECT * FROM customers WHERE cpf=$1;`, [req.body.cpf]);
-    if (!customerExists.rows[0] || customerExists.rows[0].id === req.params.id) {
+    console.log(birthday)
+    console.log(customerExists)
+    if (!customerExists.rows[0] || customerExists.rows[0].id === Number(req.params.id)) {
       await db.query(
         `UPDATE customers SET 
               name = $1, phone = $2, cpf =$3, birthday = $4
